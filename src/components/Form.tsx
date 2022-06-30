@@ -1,28 +1,50 @@
-import React, {useState} from 'react';
+import React, {useContext, useEffect} from 'react';
 import {useForm, Controller} from 'react-hook-form';
 import StyledForm from '../styles/StyledForm';
-import StyledInput from '../styles/StyledInput';
 import StyledSubmit from '../styles/StyledSubmit';
 import { FormValues } from '../types/Form';
 import Checkbox from './Checkbox';
 import Input from './Input';
 import Label from './Label';
 import Span from './Span';
+import Error from './Error'
+import { AuthContext } from './AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const Form = () => {
 
     const {
         handleSubmit,
         control,
-        getValues,
         formState: { errors }
     } = useForm<FormValues>();
 
-    const onSubmit = (data: FormValues) => console.log("Submit:", data);
-    console.log("Errors:", errors);
+
+    const {authData, setValidConditionData} = useContext(AuthContext)
+
+    const navigate = useNavigate()
+
+    useEffect(() => {
+        if(authData.isAuth) {
+            navigate('/profile')
+        }
+    }, [authData.isAuth])
+
+    const onSubmit = ({password, savePassword = false, firstName}: FormValues) => {
+        setValidConditionData({
+            login: firstName,
+            password,
+            savePassword
+        })
+    }
 
     return (
         <StyledForm onSubmit={handleSubmit(onSubmit)}>
+            {authData.isAuth === false ?
+                <Error>Пользователя не существует</Error>
+                :
+                null
+            }
             <Label>
                 Логин
                 <Controller
@@ -74,7 +96,7 @@ const Form = () => {
                 name={'savePassword'}
                 control={control}
             />
-            <StyledSubmit>Войти</StyledSubmit>
+            <StyledSubmit disabled={authData.isFetching}>Войти</StyledSubmit>
         </StyledForm>
     );
 };

@@ -6,6 +6,7 @@ const StyledForm = styled.form`
   align-items: center;
   justify-content:center;
   margin-top: 150px;
+  margin-bottom:50px;
 `
 
 export default StyledForm
